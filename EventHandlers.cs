@@ -1,74 +1,55 @@
-﻿
-
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Exiled.API.Features;
+using Exiled.API.Features.Items;
+using Exiled.Events.EventArgs.Server;
+using MEC;
+using PlayerRoles;
+using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace SCP_ES_32
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using Exiled.API.Features;
-    using Exiled.API.Features.Items;
-    using MEC;
-    using PlayerRoles;
-    using UnityEngine;
-    using Random = UnityEngine.Random;
-
     public class EventHandlers
     {
-        private readonly Plugin plugin;
-        private static int xpos;
-        private static int zpos;
-
-        public EventHandlers(Plugin plugin) => this.plugin = plugin;
-        private static string[] nombres = new string[] {"Juan","Miguel","Adolfo"
-            , "Cristian","Laura","Lorena","Guillermo","Hernán","Álvaro"
-            ,"Jose", "Jesús","Lorenzo","Alberto","????"};
-
-        public static IEnumerator<float> SCP52()
+        private static IEnumerator<float> ScpEs32()
         {
-           
             for (; ; )
             {
-                if (Round.InProgress == false)
+                var xpos = Random.Range(-18, 140);
+                var zpos = Random.Range(-53, -29);
+                var itemRandom = Random.Range(0, 100);
+                var ragdollRandom = Random.Range(0, 100);
+                
+                
+                //Spawn random ragdoll from config list
+                if (ragdollRandom > SCP_ES_32.Instance.Config.RagdollProbability && SCP_ES_32.Instance.Config.RagdollSpawn)
                 {
-                    yield return Timing.WaitForSeconds(20.0f);
+                    
+                    Ragdoll.CreateAndSpawn(RoleTypeId.ClassD, SCP_ES_32.Instance.Config.RagdollNames[Random.Range(0, SCP_ES_32.Instance.Config.RagdollNames.Count)]
+                        , SCP_ES_32.Instance.Config.RagdollDeaths.RandomItem(), new Vector3(xpos, 1005, zpos), default, null);
                 }
-                else
+                
+                //Spawn random item from config list
+                if (itemRandom > SCP_ES_32.Instance.Config.ItemProbability && SCP_ES_32.Instance.Config.ItemSpawn)
                 {
-                    xpos = Random.Range(-18, 140);
-                    zpos = Random.Range(-53, -29);
-                    var i = Random.Range(0, 450);
-                    if (i <= 390)
-                    {
+                    ItemType item = SCP_ES_32.Instance.Config.Spawnable_Items.RandomItem();
 
-                    }
-                    if (i <= 400 && i >= 391)
-                    {
-                        Ragdoll.CreateAndSpawn(RoleTypeId.ClassD, nombres[Random.Range(0, nombres.Length)], "Algunos restos humanos, en lo que es mayormente un charco de sangre.", new Vector3(xpos, 1005, zpos), default, null);
-                    }
-                    if (i > 400)
-                    {
-                        ItemType[] itemsArray = (ItemType[])Enum.GetValues(typeof(ItemType));
-                        List<ItemType> itemList = itemsArray.ToList();
-                        itemList.Remove(ItemType.None);
-                        itemList.Remove(ItemType.SCP018);
-                        itemList.Remove(ItemType.KeycardO5);
-                        itemList.Remove(ItemType.SCP244a);
-                        itemList.Remove(ItemType.SCP244b);
-                        itemList.Remove(ItemType.SCP2176);
-                        ItemType item = itemList.RandomItem();
-
-                        Item.Create(item).CreatePickup(new Vector3(xpos, 1005, zpos));
-                    }
-                    yield return Timing.WaitForSeconds(20.0f);
+                    Item.Create(item).CreatePickup(new Vector3(xpos, 1005, zpos));
                 }
-
+                
+                yield return Timing.WaitForSeconds(SCP_ES_32.Instance.Config.TimeBetweenSpawns);
             }
+        }
+        
+        internal void OnRoundEnded(RoundEndedEventArgs ev)
+        {
+            Timing.KillCoroutines("scp32");
         }
         internal void OnRoundStarted()
         {
-            Timing.RunCoroutine(SCP52(),"scp32");
+            Timing.RunCoroutine(ScpEs32(),"scp32");
         }
-
     }
 }
