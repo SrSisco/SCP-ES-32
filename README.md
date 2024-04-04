@@ -1,4 +1,4 @@
-# RainbowRun
+# SCP-ES-32
 
 ![downloads](https://img.shields.io/github/downloads/SrSisco/SCP-ES-32/total?style=for-the-badge)
 
