@@ -8,7 +8,7 @@ SCP-ES-32 is a spanish SCP that drops random things like items or people or bloo
 This plugin was very outdated and very shitty coded, so I have remade it.
 :D
 
-EXILED VERSION: 8.8.1
+EXILED VERSION: 9.6.0 beta8
 
 ## Default Config
 ```yaml
